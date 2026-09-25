@@ -35,3 +35,6 @@ The example uses the universal adapter directly to avoid recording development e
 The shared dist/ui/serenity-v3.lua entry still contains the existing presence/Discord behavior; read docs before using it in a test.
 
 Read docs/COLLABORATION.md before starting.
+
+## New collaborator or AI? Start here
+Read [the complete developer handoff](docs/AI_DEVELOPER_HANDOFF.md) for setup, library APIs, game development, testing and production linking. Its last section contains a prompt to give your AI.
