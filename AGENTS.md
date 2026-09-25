@@ -1,0 +1,1 @@
+Read README.md and docs/COLLABORATION.md first. This is a readable development library. Preserve the existing production loader URL. Do not deploy development changes to production without explicit release authorization. Keep new games in separate files, use verified APIs and IDs, preserve control IDs and lifecycle cleanup, and do not commit secrets or obfuscated payloads.
