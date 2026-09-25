@@ -1,8 +1,12 @@
-# Serenity library: collaborator and AI handoff
+# Developer Integration Guide
 
 Verified against the repositories on 2026-09-25. Read current source before making changes; this document is a starting point, not a substitute for inspection.
 
-## 1. Understand the two repositories
+**Audience:** Developers and AI coding assistants integrating games with the Serenity library.
+
+**Related documents:** [Overview](../README.md) · [Contribution Workflow](COLLABORATION.md) · [Documentation Index](README.md)
+
+## 1. Repository Architecture
 
 | Repository | Purpose | Does merging here update existing users? |
 | --- | --- | --- |
@@ -15,14 +19,14 @@ The public entry remains:
 loadstring(game:HttpGet("https://raw.githubusercontent.com/MUshihara/Serenity-hub/main/loader.lua"))()
 ```
 
-The v2 root loader forwards to that production entry. It is NOT a development game selector. Uploading a file under v2/games does not register a supported game, and running the public loader will not discover that file automatically.
+The development root loader forwards to the production entry; it does not select development games. Uploading a file under v2/games does not register a supported game, and running the public loader will not discover that file automatically.
 
 There are two separate meanings of integration:
 1. A game script builds its interface using the Serenity library.
 2. The public production router recognizes the game's verified IDs and loads its released script.
 Complete and test the first before requesting the second.
 
-## 2. Access and tools needed
+## 2. Access and Environment Requirements
 
 - Your own GitHub account, invited to the development repository.
 - Your AI's GitHub connection granted access to that repository, if using an AI connector.
@@ -35,7 +39,7 @@ This library is Luau but uses environment-specific facilities such as loadstring
 
 The repository is public. Never commit cloud secrets, webhook credentials, tokens, personal logs or credentials from diagnostic output.
 
-## 3. Files to read first
+## 3. Required Source Review
 
 1. AGENTS.md and README.md.
 2. docs/COLLABORATION.md and this document.
@@ -46,7 +50,7 @@ The repository is public. Never commit cloud secrets, webhook credentials, token
 7. docs/UI_LOCALIZATION.md for translations.
 8. docs/ACTIVE_PRESENCE.md only when working on stats integration.
 
-## 4. What is in this copy
+## 4. Library Components
 
 | Location | Responsibility |
 | --- | --- |
@@ -63,7 +67,7 @@ Legacy UI files remain to satisfy existing compatibility routes. They are not th
 
 The current bundles are readable and are the baseline. Their generated-file comments refer to an older prototype not included here. Do not rebuild from an unrelated old prototype and overwrite the current UI.
 
-## 5. Start a new game
+## 5. New-Game Integration
 
 1. Create a branch, for example game/my-game.
 2. Copy games/example.lua to games/my-game.lua.
@@ -99,7 +103,7 @@ The stable configuration key is PageId.FeatureId.ControlId. Change visible label
 | Progress | Display value/range; Min < Max when both provided |
 | Paragraph | Informational Title/Text |
 
-Value controls use Changed or fall back to Callback. Callbacks run asynchronously with protected error reporting. They are not serialized, so your feature must prevent overlapping work. Read the current validator/control implementation before using optional fields; do not invent API names from other UI libraries.
+Value controls use Changed or fall back to Callback. Callbacks run asynchronously with protected error reporting. They are not serialized, so the feature must prevent overlapping work. Read the current validator/control implementation before using optional fields; do not invent API names from other UI libraries.
 
 ```lua
 local app = UI.Build(manifest, {
@@ -109,7 +113,7 @@ local app = UI.Build(manifest, {
 
 local enabled = app.Config:Get("Example.Controls.Enabled", false)
 app.Window:Notify("Example", "Ready")
--- Update a Live control that actually exists in your manifest:
+-- Update a Live control that actually exists in the manifest:
 -- app.Adapter:SetLive("Dashboard.Status.Count", count)
 -- Stop the UI and owned resources:
 -- app:Destroy()
@@ -123,7 +127,7 @@ The adapter supplies shared About and Settings pages. Reserved page IDs can be r
 
 Config:Get(key, fallback) returns saved/default state. Config:Set(key, value, silent) changes state; normal value-control callbacks already save through the adapter. SaveSoon is debounced; SaveNow is explicit. Persistence requires the environment's file APIs; without them settings are session-only.
 
-The current config loader checks top-level types against defaults. It does not fully validate ranges, nested arrays or game-specific values. Validate those yourself. Saved values are not guaranteed to trigger Changed on startup: explicitly initialize your feature state from app.Config after Build.
+The current config loader checks top-level types against defaults. It does not fully validate ranges, nested arrays or game-specific values. Validate those yourself. Saved values are not guaranteed to trigger Changed on startup: explicitly initialize the feature state from app.Config after Build.
 
 Runtime provides TrackConnection, TrackCleanup, TrackChild and Destroy. Reusing the same RuntimeKey destroys the previous owner for that key. It does not clean up unrelated untracked tasks or persist identity across rejoins.
 
@@ -137,7 +141,7 @@ end)
 -- app.Runtime:TrackConnection(event:Connect(function(...) ... end))
 ```
 
-Track and cancel your workers, or make them exit on stopped/app.Runtime.Destroyed. Avoid spawning a fresh loop every time a toggle is clicked. Re-check state after yielding. Use bounded retries, verify outcomes and coordinate conflicting actions.
+Track and cancel background workers, or make them exit on stopped/app.Runtime.Destroyed. Avoid spawning a fresh loop every time a toggle is clicked. Re-check state after yielding. Use bounded retries, verify outcomes and coordinate conflicting actions.
 
 Keep initial gameplay actions disabled in the starter. Only add them after inspecting actual game source/interfaces within an authorized environment.
 
@@ -167,7 +171,7 @@ The copied UI retains some shared release text. Review user-facing About/status 
 - Production feedback webhook credentials were deliberately removed from this copy. Feedback is not configured merely because its UI is present. Integrating a destination requires explicit owner configuration; never reinsert secrets into this public repository.
 - Global chat and announcements remain a separate Phonk-only experiment. They are not included in new games by this starter and are not approved for a broad rollout.
 
-## 10. Connect the finished game to the public loader
+## 10. Production Loader Integration
 
 This is an owner-reviewed production release step, not a side effect of saving a game file.
 
@@ -186,7 +190,7 @@ Release procedure:
 
 Do not bulk-copy the development library over production merely to add one game. Only release the required, reviewed changes. Files in services are not deployed to Cloudflare by a GitHub commit here.
 
-## 11. Completion evidence to hand to the owner
+## 11. Release Submission Requirements
 
 - Game name, universe ID and supported place IDs.
 - Development commit and exact test loader.
@@ -200,7 +204,7 @@ Do not bulk-copy the development library over production merely to add one game.
 
 Syntax checks and mocked tests do not prove in-game operation. Do not claim obfuscated payload internals were reviewed when their readable source is unavailable.
 
-## 12. Prompt to give the collaborator's AI
+## 12. AI Development Brief
 
 ```text
 We are developing a new game integration using MUshihara/SerenityHubv2.
@@ -224,5 +228,5 @@ development. Do not deploy services, include secrets, add duplicate
 presence loops, bypass existing access checks, or promote the separate
 chat experiment. Prepare an explicit production integration proposal
 after the owner accepts tests. The public loader URL must stay unchanged.
-Clearly distinguish verified results from assumptions and tests I must run.
+Clearly distinguish verified results, assumptions, and outstanding in-game tests.
 ```

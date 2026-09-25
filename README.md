@@ -1,40 +1,78 @@
-# SerenityHubv2 — collaboration library
+# SerenityHubv2
 
-Readable development copy of Serenity's existing library. Production is unchanged.
-Source tree snapshot: f45cc48c0f12645f3302dc99ac621ca8545b3163 (2026-09-25).
+Development library and integration workspace for Serenity Hub.
 
-## Public loader — unchanged
-```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/MUshihara/Serenity-hub/main/loader.lua"))()
-```
-This repository's root loader forwards to that release. It does NOT run unfinished v2 games.
+This repository contains readable interface components, shared runtime modules, localization resources, and a reference game integration. It supports collaborative development while maintaining a separate production release process.
 
-## Test the new-game example
+## Repository Status
+
+| Item | Description |
+| --- | --- |
+| Purpose | Library maintenance and new-game development |
+| Production repository | [MUshihara/Serenity-hub](https://github.com/MUshihara/Serenity-hub) |
+| Deployment | Separate, reviewed production release |
+| Game implementations | Readable reference example; existing obfuscated payloads are excluded |
+| Validation | Example syntax checked; in-game validation required |
+
+Merging changes into this repository does not update the production loader or register a supported game.
+
+## Documentation
+
+| Document | Scope |
+| --- | --- |
+| [Documentation Index](docs/README.md) | Documentation structure and recommended reading order |
+| [Developer Integration Guide](docs/AI_DEVELOPER_HANDOFF.md) | Environment requirements, library APIs, testing, and production integration |
+| [Contribution and Release Workflow](docs/COLLABORATION.md) | Branches, review requirements, and release responsibilities |
+| [Localization Reference](docs/UI_LOCALIZATION.md) | Supported languages, dictionary maintenance, and build procedures |
+| [Presence Service Reference](docs/ACTIVE_PRESENCE.md) | Account presence, execution statistics, and backend contracts |
+| [Agent Instructions](AGENTS.md) | Requirements for AI-assisted contributions |
+
+## Repository Structure
+
+| Directory | Contents |
+| --- | --- |
+| `games/` | Reference integration and future readable game modules |
+| `dist/core/` | Manifest validation, configuration, lifecycle, and device routing |
+| `dist/ui/` | Readable UI bundles and compatibility dependencies |
+| `src/ui/localization/` | Translation dictionaries and localization runtime |
+| `scripts/` | Localization build and verification tools |
+| `services/active-counter/` | Presence service reference implementation and tests |
+| `docs/` | Development and integration documentation |
+
+Existing dependency paths are retained. Static artwork uses the existing pinned asset source.
+
+## Development Example
+
+Review [games/example.lua](games/example.lua) before execution. The example demonstrates interface construction and notifications without gameplay automation or shared presence reporting.
+
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/MUshihara/SerenityHubv2/main/games/example.lua"))()
 ```
-This opens a harmless development UI example. It has no game automation or presence reporting.
-Run only in an appropriate test session; the shared UI can replace a previous UI instance.
 
-## Contents
-- dist/: readable UI bundles and shared core, retaining dependency paths.
-- src/: local translation dictionaries and runtime.
-- scripts/: translation build/audit checks.
-- games/: one readable example; add one file per new game.
-- docs/: collaboration, localization and presence documentation.
-- services/: reference presence Worker source and tests; no deployment is configured.
+The supplied library requires an environment compatible with its loading APIs. It is not a directly installable Roblox Studio ModuleScript package. Refer to the integration guide for requirements and limitations.
 
-No obfuscated game payloads, access-key files, game release wrappers, experiments, or duplicate source repository history are copied.
-Legacy UI dependencies are retained because the shared entry point still exposes compatibility routes.
-Static artwork remains at its existing pinned asset URL; it is not duplicated.
+## Production Entry Point
 
-## Important differences from production
-Internal library fetches resolve to SerenityHubv2. Layout and gameplay-independent UI behavior are otherwise retained.
-Embedded production feedback webhook credentials were removed: feedback requires a deliberately configured destination before use.
-The example uses the universal adapter directly to avoid recording development executions in production stats.
-The shared dist/ui/serenity-v3.lua entry still contains the existing presence/Discord behavior; read docs before using it in a test.
+The existing public loader remains:
 
-Read docs/COLLABORATION.md before starting.
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/MUshihara/Serenity-hub/main/loader.lua"))()
+```
 
-## New collaborator or AI? Start here
-Read [the complete developer handoff](docs/AI_DEVELOPER_HANDOFF.md) for setup, library APIs, game development, testing and production linking. Its last section contains a prompt to give your AI.
+The root `loader.lua` in this repository forwards to that production entry. It does not load development modules from `games/`.
+
+## Configuration and External Services
+
+- Internal library dependencies resolve to this development repository.
+- The shared entry retains the existing production presence endpoint. Use the direct universal adapter for isolated interface testing.
+- Embedded production feedback webhook credentials are excluded. A feedback destination requires separate configuration.
+- Backend source files are provided for reference; repository changes do not deploy services.
+- The separate Phonk chat and announcement experiment is not included in the new-game starter.
+
+Do not commit credentials, tokens, or private diagnostic data.
+
+## Source Baseline
+
+The initial library copy was prepared on 25 September 2026 from production tree `f51b50ad5ddc6b3a2bd3ebb54f6e488232614710`.
+
+The current source code is authoritative. Review repository changes before applying instructions from an earlier handoff.
